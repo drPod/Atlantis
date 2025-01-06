@@ -5,9 +5,6 @@ using System.Numerics;
 
 namespace Atlantis;
 
-public record struct Position(float X, float Y); // Position: pixels
-public record struct Velocity(float Dx, float Dy); // Velocity: pixels/sec
-
 class Program
 {
     static int RenderWidth = 640;
@@ -33,11 +30,10 @@ class Program
     public static void Main()
     {
         SetConfigFlags(ConfigFlags.VSyncHint);
-        InitWindow(RenderWidth, RenderHeight, "The Lost City Of Atlantis: The Kraken's Den");
-        SetTargetFPS(60);
+        InitWindow(1280, 720, "The Lost City Of Atlantis: The Kraken's Den");
 
         /* Initialization */
-        using var world = World.Create();
+        Level testLevel = new MainLevel(RenderWidth, RenderHeight);
 
         /* Loading */
         RenderTexture2D target = LoadRenderTexture(RenderWidth, RenderHeight);
@@ -46,20 +42,26 @@ class Program
         {
             /* Update */
             if (IsKeyPressed(KeyboardKey.F)) ToggleBorderlessWindowed();
+            testLevel.UpdateLevel();
 
             /* Draw */
+            BeginDrawing();
+
             // We draw to a target before framebuffer
             // in order to get consistent scaling on all resolutions
+            // Draw here directly for things that are relative to the screen (ie HUD, menus)
             BeginTextureMode(target);
-
-            // Draw here!
             ClearBackground(Color.White);
+
+            // This call uses the level's camera
+            testLevel.DrawLevel();
+
             DrawText("Hello, world!", 12, 12, 20, Color.Black);
 
             EndTextureMode();
 
             // Draws target to screen size with letterboxing
-            // Don't mess with this!
+            // Don't mess with any drawing code after this!
             float scale = MathF.Min(
                 GetScreenWidth() / target.Texture.Width, // scale of target and screen on x direction
                 GetScreenHeight() / target.Texture.Height // scale of target and screen on y direction
@@ -71,8 +73,8 @@ class Program
                         target.Texture.Width * scale,
                         target.Texture.Height * scale);
 
-            BeginDrawing();
-            DrawTexturePro(target.Texture, fullTextureSource(target.Texture), gameScreenDestRec, Vector2.Zero, 0f, Color.White);
+            DrawTexturePro(target.Texture, fullTextureSource(target.Texture),
+                           gameScreenDestRec, Vector2.Zero, 0f, Color.White);
             EndDrawing();
         }
 
