@@ -35,7 +35,7 @@ abstract class Level : ILevel,IDisposable
     }
 
     // From https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose
-    private bool _disposed;
+    private bool _disposed = false;
 
     protected virtual void Dispose(bool disposing)
     {
