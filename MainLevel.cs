@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Atlantis;
 
-class MainLevel : Level,ILevel
+class MainLevel : Level,ILevel,IDisposable
 {
     public MainLevel(int windowWidth, int windowHeight) : base(windowWidth, windowHeight)
     {
