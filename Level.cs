@@ -12,14 +12,16 @@ abstract class Level : ILevel,IDisposable
     public record struct Texture(Texture2D texture);
     public record struct HitboxRectangle(Rectangle rec); // Rectangular hitbox, relative to the top left corner of the texture
     public record struct HitboxCircle(Vector2 center, float radius); // Circular hitbox, relative to the center of the texture
+    public record struct Player(bool isPlayer);
 
-    public World LevelWorld { get; }
+    public World LevelWorld { get => world; }
+    protected World world;
     public Camera2D Camera { get => camera; }
     protected Camera2D camera;
 
     public Level(int windowWidth, int windowHeight)
     {
-        LevelWorld = World.Create();
+        world = World.Create();
         camera = new Camera2D();
         camera.Target = new Vector2(0, 0);
         camera.Offset = new Vector2(windowWidth / 2, windowHeight / 2);

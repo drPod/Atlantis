@@ -33,7 +33,7 @@ class Program
         InitWindow(1280, 720, "The Lost City Of Atlantis: The Kraken's Den");
 
         /* Initialization */
-        Level testLevel = new MainLevel(RenderWidth, RenderHeight);
+        ILevel testLevel = new MainLevel(RenderWidth, RenderHeight);
 
         /* Loading */
         RenderTexture2D target = LoadRenderTexture(RenderWidth, RenderHeight);
