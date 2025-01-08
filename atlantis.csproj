@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Arch" Version="1.2.8" />
+    <PackageReference Include="Arch.Persistence" Version="1.0.4" />
     <PackageReference Include="Box2D.NET.Release" Version="3.0.0" />
     <PackageReference Include="Raylib-cs" Version="7.0.0" />
   </ItemGroup>

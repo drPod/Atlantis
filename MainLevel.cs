@@ -7,17 +7,31 @@ namespace Atlantis;
 
 class MainLevel : Level,ILevel,IDisposable
 {
-    public MainLevel(int windowWidth, int windowHeight) : base(windowWidth, windowHeight)
+    private bool drawHitboxes = true;
+
+    public MainLevel(int windowWidth, int windowHeight, IContentLoader contentLoader) : base(windowWidth, windowHeight)
     {
-        // Change the camera here... or not, I won't force you
+        contentLoader.LoadContentIntoWorld(world);
     }
 
-    public override void UpdateLevel()
+    public override void UpdateLevel(Vector2 virtualMousePos)
     {
-        if (IsKeyDown(KeyboardKey.Left)) camera.Target.X -= 5;
-        if (IsKeyDown(KeyboardKey.Right)) camera.Target.X += 5;
-        if (IsKeyDown(KeyboardKey.Up)) camera.Target.Y -= 5;
-        if (IsKeyDown(KeyboardKey.Down)) camera.Target.Y += 5;
+        /* keybindings */
+        /* debug */
+        if (IsKeyPressed(KeyboardKey.H)) drawHitboxes = !drawHitboxes;
+
+        // player movement
+        var queryForPlayer = new QueryDescription().WithAll<Player, Velocity>();
+        world.Query(in queryForPlayer, (ref Velocity vel) => {
+            // TODO: add controller movement
+        });
+
+        // Apply velocities
+        var queryForVelocities = new QueryDescription().WithAll<Position, Velocity>();
+        world.Query(in queryForVelocities, (ref Position pos, ref Velocity vel) => {
+            pos.X += vel.Dx * GetFrameTime();
+            pos.Y += vel.Dy * GetFrameTime();
+        });
     }
 
     public override void DrawLevel()
@@ -26,7 +40,20 @@ class MainLevel : Level,ILevel,IDisposable
         // Draw here for things that are relative to the world (ie enemies, objects in the game world)
         BeginMode2D(camera);
 
-        DrawRectangle(5, 5, 100, 100, Color.Black);
+        var queryToDraw = new QueryDescription().WithAll<Position, Texture2D>();
+        world.Query(in queryToDraw, (ref Position pos, ref Texture2D texture) => {
+            DrawTexture(texture, (int)MathF.Round(pos.X), (int)MathF.Round(pos.Y), Color.White);
+        });
+
+        if (drawHitboxes) {
+            var queryToDrawHitboxes = new QueryDescription().WithAll<Position, HitboxRectangle>();
+            world.Query(in queryToDrawHitboxes, (ref Position pos, ref HitboxRectangle hitbox) => {
+                DrawRectangle((int)MathF.Round(pos.X + hitbox.rect.X),
+                              (int)MathF.Round(pos.Y + hitbox.rect.Y),
+                              (int)MathF.Round(hitbox.rect.Width),
+                              (int)MathF.Round(hitbox.rect.Height), Color.Green);
+            });
+        }
 
         EndMode2D();
     }

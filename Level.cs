@@ -4,16 +4,14 @@ using System.Numerics;
 
 namespace Atlantis;
 
+/* Levels contain the logic to interact with and view seperate worlds.
+ * They accomplish this by having their own cameras and ECSs to provide
+ * an API to simulate and draw virtual environments.
+ * Using inheritance, child classes of levels can apply pre or post-processing
+ * to the world/ECS of the parent levels.
+ */
 abstract class Level : ILevel,IDisposable
 {
-    // structs for the ECS
-    public record struct Position(float X, float Y); // Position: pixels
-    public record struct Velocity(float Dx, float Dy); // Velocity: pixels/sec
-    public record struct Texture(Texture2D texture);
-    public record struct HitboxRectangle(Rectangle rec); // Rectangular hitbox, relative to the top left corner of the texture
-    public record struct HitboxCircle(Vector2 center, float radius); // Circular hitbox, relative to the center of the texture
-    public record struct Player(bool isPlayer);
-
     public World LevelWorld { get => world; }
     protected World world;
     public Camera2D Camera { get => camera; }
@@ -54,13 +52,12 @@ abstract class Level : ILevel,IDisposable
         _disposed = true;
     }
 
-    // Destructor to unload world
     ~Level()
     {
         Dispose();
     }
 
-    public abstract void UpdateLevel();
+    public abstract void UpdateLevel(Vector2 virtualMousePos);
 
     public abstract void DrawLevel();
 }
