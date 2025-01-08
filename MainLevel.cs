@@ -1,6 +1,7 @@
 using Raylib_cs;
 using static Raylib_cs.Raylib;
 using Arch.Core;
+using Arch.Core.Extensions;
 using System.Numerics;
 
 namespace Atlantis;
@@ -41,8 +42,11 @@ class MainLevel : Level,ILevel,IDisposable
         BeginMode2D(camera);
 
         var queryToDraw = new QueryDescription().WithAll<Position, Texture2D>();
-        world.Query(in queryToDraw, (ref Position pos, ref Texture2D texture) => {
-            DrawTexture(texture, (int)MathF.Round(pos.X), (int)MathF.Round(pos.Y), Color.White);
+        world.Query(in queryToDraw, (Entity entity, ref Position pos, ref Texture2D texture) => {
+            if (entity.Has<Rotation>())
+                //DrawTexturePro(texture, // math
+            else
+                DrawTexture(texture, (int)MathF.Round(pos.X), (int)MathF.Round(pos.Y), Color.White);
         });
 
         if (drawHitboxes) {

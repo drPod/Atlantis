@@ -9,6 +9,7 @@ namespace Atlantis;
 class LevelEditor : MainLevel, ILevel, IDisposable
 {
     public record struct Dragging(Vector2 cursorOffset); // Component placed on object when it is being dragged
+    public record struct Rotating(Vector2 cursorOffset); // Component placed on object when it is being dragged
 
     protected bool running = false;
 
@@ -42,18 +43,23 @@ class LevelEditor : MainLevel, ILevel, IDisposable
         camera.Zoom += ((float)GetMouseWheelMove() * 0.05f);
         if (camera.Zoom < 0) camera.Zoom = 0;
 
-        if (IsMouseButtonDown(MouseButton.Right)) {
+        if (IsMouseButtonDown(MouseButton.Middle)) {
             camera.Target += GetMouseDelta() / camera.Zoom * 0.5f;
         }
 
-        // Drag items around the editor
+        // Drag/Rotate items around the editor
         Vector2 cursorPositionInWorld = GetScreenToWorld2D(virtualMousePos, camera);
-        var queryForObjects = new QueryDescription().WithAll<Position, Texture2D>().WithNone<Dragging>();
+        var queryForObjects = new QueryDescription().WithAll<Position, Texture2D>().WithNone<Dragging, Rotating>();
         world.Query(in queryForObjects, (Entity entity, ref Position pos, ref Texture2D texture) => {
-            if (IsMouseButtonDown(MouseButton.Left) &&
-                RectangleContains(RectangleFromTexture(pos, texture),
-                                  cursorPositionInWorld))
-                entity.Add(new Dragging(Vector2.Subtract(cursorPositionInWorld, pos.Vector2)));
+            Rectangle selectedObjectRectangle = RectangleFromTexture(pos, texture);
+            if (RectangleContains(selectedObjectRectangle, cursorPositionInWorld)) {
+                // Drag
+                if (IsMouseButtonDown(MouseButton.Left))
+                    entity.Add(new Dragging(Vector2.Subtract(cursorPositionInWorld, pos.Vector2)));
+                // Rotate
+                else if (IsMouseButtonDown(MouseButton.Right))
+                    entity.Add(new Rotating(Vector2.Subtract(cursorPositionInWorld, pos.Vector2)));
+            }
         });
         var queryBeingDragged = new QueryDescription().WithAll<Dragging, Position>();
         world.Query(in queryBeingDragged, (Entity entity, ref Position pos, ref Dragging dragging) => {
@@ -62,6 +68,14 @@ class LevelEditor : MainLevel, ILevel, IDisposable
                 pos.Y = cursorPositionInWorld.Y - dragging.cursorOffset.Y;
             } else
                 entity.Remove<Dragging>();
+        });
+        var queryBeingRotated = new QueryDescription().WithAll<Rotating, Position>();
+        world.Query(in queryBeingRotated, (Entity entity, ref Position pos, ref Rotating rotating) => {
+            if (IsMouseButtonDown(MouseButton.Right)) {
+                pos.X = cursorPositionInWorld.X - rotating.cursorOffset.X;
+                pos.Y = cursorPositionInWorld.Y - rotating.cursorOffset.Y;
+            } else
+                entity.Remove<Rotating>();
         });
 
         /* editor keybindings */

@@ -36,15 +36,26 @@ class MainContentLoader : IContentLoader
                 ));
     }
 
+    private Texture2D CropImageAndMakeTexture(ref Image image)
+    {
+        // Garbage collector do your thing
+        image = ImageFromImage(image, GetImageAlphaBorder(image, 0.1f));
+        return LoadTextureFromImage(image);
+    }
+
     public void LoadContentIntoWorld(World world)
     {
         if (filename == String.Empty) {
             /* for testing */
-            Image playerImageUncropped = LoadImage("./assets/devel/submarine.png");
-            Image playerImage = ImageFromImage(playerImageUncropped, GetImageAlphaBorder(playerImageUncropped, 0.1f));
-            Texture2D playerTexture = LoadTextureFromImage(playerImage);
+            //Image playerImageUncropped = LoadImage("./assets/devel/submarine.png");
+            //Image playerImage = ImageFromImage(playerImageUncropped, GetImageAlphaBorder(playerImageUncropped, 0.1f));
+            //Texture2D playerTexture = LoadTextureFromImage(playerImage);
+            Image playerImage = LoadImage("./assets/devel/submarine.png");
+            Texture2D playerTexture = CropImageAndMakeTexture(ref playerImage);
             world.Create(new Player(), new Position(0, 0), new Velocity(0, 50),
                     playerTexture, HitboxFromImage(playerTexture));
+
+            world.Create(LoadTexture("./assets/devel/rotate.png"), new Icon(IconTypes.Rotate));
         } else {
             // TODO: implement method to load specific saved levels from file
         }
