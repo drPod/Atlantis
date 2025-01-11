@@ -1,4 +1,5 @@
 ﻿using Raylib_cs;
+using Arch.Core;
 using static Raylib_cs.Raylib;
 using System.Numerics;
 
@@ -51,15 +52,18 @@ class Program
         // Read command line arguments to load level
         IContentLoader contentLoader = new MainContentLoader();
         ILevel level;
-        if (args.Length > 1) {
+        if (args.Length > 1)
+        {
             Console.Error.WriteLine($"Format:\n\t{Environment.GetCommandLineArgs()[0]} [LEVEL]");
             Environment.Exit(1);
             return;
-        } else if (args.Length == 0 || args[0] == "main")
+        }
+        else if (args.Length == 0 || args[0] == "main")
             level = new MainLevel(RenderWidth, RenderHeight, contentLoader);
         else if (args[0] == "editor")
             level = new LevelEditor(RenderWidth, RenderHeight, contentLoader);
-        else {
+        else
+        {
             Console.Error.WriteLine($"{Environment.GetCommandLineArgs()[0]}: invalid level");
             Environment.Exit(1);
             return;
@@ -68,6 +72,10 @@ class Program
         /* Loading */
         target = LoadRenderTexture(RenderWidth, RenderHeight);
         UpdateRenderScaling();
+
+        World previousState = null;
+        Serializer stateLoader = new Serializer();
+        previousState = stateLoader.LoadGameState();
 
         while (!WindowShouldClose())
         {
@@ -100,7 +108,8 @@ class Program
             /* Debug Drawing */
             if (ShowFPS)
                 DrawText($"FPS: {GetFPS()}", 12, 12, 20, Color.Black);
-            if (ShowMousePosition) {
+            if (ShowMousePosition)
+            {
                 DrawText($"Default Mouse: [{(int)mouse.X} {(int)mouse.Y}]", 350, 12, 20, Color.Green);
                 DrawText($"Virtual Mouse: [{(int)virtualMouse.X}, {(int)virtualMouse.Y}]", 350, 42, 20, Color.Yellow);
             }
@@ -117,6 +126,11 @@ class Program
         }
 
         /* Unloads */
+        Serializer stateSaver = new Serializer();
+        World state = ((Level)level).LevelWorld;
+
+        stateSaver.SaveGameState(state);
+
         UnloadRenderTexture(target);
 
         CloseWindow();
