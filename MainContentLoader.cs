@@ -22,29 +22,44 @@ class MainContentLoader : IContentLoader
         filename = String.Empty;
     }
 
-    /* HitboxFromTexture: A method for automatically
-     * generating a basic rectangular hitbox from a Texture,
+    /* HitboxFromRectangle: A method for automatically
+     * generating a basic rectangular hitbox from a rectangle,
      */
-    private HitboxRectangle HitboxFromImage(Texture2D texture)
+    private HitboxRectangle HitboxFromRectangle(Rectangle rect)
     {
         return new HitboxRectangle(
             new Rectangle(
-                texture.Width / 5f,
-                texture.Height / 5f,
-                3 * texture.Width / 5f,
-                3 * texture.Height / 5f
+                rect.Width / 5f,
+                rect.Height / 5f,
+                3 * rect.Width / 5f,
+                3 * rect.Height / 5f
                 ));
+    }
+
+    private SourceRects FromSpritesheet(Image image, int numSprites)
+    {
+        Rectangle[] rects = new Rectangle[numSprites];
+        int spriteWidth = image.Width / numSprites;
+        for (int i = 0; i < numSprites; i++) {
+            Rectangle spriteRect = new Rectangle(spriteWidth * i, 0, spriteWidth, image.Height);
+            Image spriteImage = ImageFromImage(image, spriteRect);
+            Rectangle spriteAlphaBorder = GetImageAlphaBorder(spriteImage, 0.1f);
+            rects[i] = new Rectangle(spriteRect.X + spriteAlphaBorder.X,
+                                     spriteRect.Y + spriteAlphaBorder.Y,
+                                     spriteAlphaBorder.Width, spriteAlphaBorder.Height);
+            Console.WriteLine(rects[i]);
+        }
+        return new SourceRects(rects, 0);
     }
 
     public void LoadContentIntoWorld(World world)
     {
         if (filename == String.Empty) {
             /* for testing */
-            Image playerImageUncropped = LoadImage("./assets/devel/submarine.png");
-            Image playerImage = ImageFromImage(playerImageUncropped, GetImageAlphaBorder(playerImageUncropped, 0.1f));
-            Texture2D playerTexture = LoadTextureFromImage(playerImage);
+            Image playerImage = LoadImage("./assets/underwater-diving-files/PNG/player/player-swiming.png");
+            SourceRects playerSource = FromSpritesheet(playerImage, 7);
             world.Create(new Player(), new Position(0, 0), new Velocity(0, 50),
-                    playerTexture, HitboxFromImage(playerTexture));
+                    LoadTextureFromImage(playerImage), playerSource, HitboxFromRectangle(playerSource.rects[0]));
         } else {
             // TODO: implement method to load specific saved levels from file
         }

@@ -17,21 +17,21 @@ class LevelEditor : MainLevel, ILevel, IDisposable
         SetWindowTitle("Level Editor");
     }
 
-    private bool RectangleContains(Rectangle r, Vector2 point)
-    {
-        return point.X > r.X &&
-               point.X < r.X + r.Width &&
-               point.Y > r.Y &&
-               point.Y < r.Y + r.Height;
-    }
-
     private Rectangle RectangleFromTexture(Position pos, Texture2D texture)
     {
         return new Rectangle(pos.X, pos.Y, texture.Width, texture.Height);
     }
 
+    private Rectangle RectangleFromSourceRect(Position pos, Rectangle sourceRect)
+    {
+        return new Rectangle(pos.X, pos.Y, sourceRect.Width, sourceRect.Height);
+    }
+
     public override void UpdateLevel(Vector2 virtualMousePos)
     {
+        /* editor keybindings */
+        if (IsKeyPressed(KeyboardKey.R)) running = !running;
+
         // Test out the level
         if (running) {
             base.UpdateLevel(virtualMousePos);
@@ -50,10 +50,17 @@ class LevelEditor : MainLevel, ILevel, IDisposable
         Vector2 cursorPositionInWorld = GetScreenToWorld2D(virtualMousePos, camera);
         var queryForObjects = new QueryDescription().WithAll<Position, Texture2D>().WithNone<Dragging>();
         world.Query(in queryForObjects, (Entity entity, ref Position pos, ref Texture2D texture) => {
-            if (IsMouseButtonDown(MouseButton.Left) &&
-                RectangleContains(RectangleFromTexture(pos, texture),
-                                  cursorPositionInWorld))
+
+            Rectangle spriteRect;
+            if (entity.Has<SourceRects>())
+                spriteRect = RectangleFromSourceRect(pos, entity.Get<SourceRects>().CurrentRect);
+            else
+                spriteRect = RectangleFromTexture(pos, texture);
+
+            if (IsMouseButtonPressed(MouseButton.Left) &&
+                CheckCollisionPointRec(cursorPositionInWorld, spriteRect)) {
                 entity.Add(new Dragging(Vector2.Subtract(cursorPositionInWorld, pos.Vector2)));
+            }
         });
         var queryBeingDragged = new QueryDescription().WithAll<Dragging, Position>();
         world.Query(in queryBeingDragged, (Entity entity, ref Position pos, ref Dragging dragging) => {
@@ -63,10 +70,6 @@ class LevelEditor : MainLevel, ILevel, IDisposable
             } else
                 entity.Remove<Dragging>();
         });
-
-        /* editor keybindings */
-        if (IsKeyPressed(KeyboardKey.R)) running = !running;
-
     }
 
     public override void DrawLevel()

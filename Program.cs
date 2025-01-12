@@ -10,7 +10,7 @@ class Program
     public static int RenderWidth = 640;
     public static int RenderHeight = 360;
     public static bool ShowFPS = true;
-    public static bool ShowMousePosition = true;
+    public static bool ShowMousePosition = false;
 
     public static RenderTexture2D target;
     public static float scale;
@@ -44,9 +44,10 @@ class Program
     public static void Main(string[] args)
     {
         // Configure window
-        SetConfigFlags(ConfigFlags.VSyncHint);
+        //SetConfigFlags(ConfigFlags.VSyncHint);
         InitWindow(1280, 720, "The Lost City Of Atlantis: The Kraken's Den");
-        SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
+        //SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
+        SetTargetFPS(60);
 
         /* Initialization */
         // Read command line arguments to load level
@@ -73,9 +74,9 @@ class Program
         target = LoadRenderTexture(RenderWidth, RenderHeight);
         UpdateRenderScaling();
 
-        World previousState = null;
-        Serializer stateLoader = new Serializer();
-        previousState = stateLoader.LoadGameState();
+        //World previousState = null;
+        //Serializer stateLoader = new Serializer();
+        //previousState = stateLoader.LoadGameState();
 
         while (!WindowShouldClose())
         {
@@ -120,16 +121,17 @@ class Program
                 UpdateRenderScaling();
             // Draws target to screen size with letterboxing
             // Don't mess with any drawing code after this!
+            ClearBackground(Color.Black);
             DrawTexturePro(target.Texture, fullTextureSource(target.Texture),
                            screenDestRect, Vector2.Zero, 0f, Color.White);
             EndDrawing();
         }
 
         /* Unloads */
-        Serializer stateSaver = new Serializer();
-        World state = ((Level)level).LevelWorld;
+        //Serializer stateSaver = new Serializer();
+        //World state = ((Level)level).LevelWorld;
 
-        stateSaver.SaveGameState(state);
+        //stateSaver.SaveGameState(state);
 
         UnloadRenderTexture(target);
 
