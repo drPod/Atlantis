@@ -36,7 +36,7 @@ class MainContentLoader : IContentLoader
                 ));
     }
 
-    private SourceRects FromSpritesheet(Image image, int numSprites)
+    private Rectangle[] FromSpritesheet(Image image, int numSprites)
     {
         Rectangle[] rects = new Rectangle[numSprites];
         int spriteWidth = image.Width / numSprites;
@@ -47,9 +47,8 @@ class MainContentLoader : IContentLoader
             rects[i] = new Rectangle(spriteRect.X + spriteAlphaBorder.X,
                                      spriteRect.Y + spriteAlphaBorder.Y,
                                      spriteAlphaBorder.Width, spriteAlphaBorder.Height);
-            Console.WriteLine(rects[i]);
         }
-        return new SourceRects(rects, 0);
+        return rects;
     }
 
     public void LoadContentIntoWorld(World world)
@@ -57,9 +56,13 @@ class MainContentLoader : IContentLoader
         if (filename == String.Empty) {
             /* for testing */
             Image playerImage = LoadImage("./assets/underwater-diving-files/PNG/player/player-swiming.png");
-            SourceRects playerSource = FromSpritesheet(playerImage, 7);
-            world.Create(new Player(), new Position(0, 0), new Velocity(0, 50),
-                    LoadTextureFromImage(playerImage), playerSource, HitboxFromRectangle(playerSource.rects[0]));
+            Dictionary<String, Rectangle[]> playerSprites = new()
+            {
+                { "swiming", FromSpritesheet(playerImage, 7) }
+            };
+            SourceRects playerSource = new SourceRects(playerSprites, "swiming", 0);
+            world.Create(new Player(), new Gravity(), new Position(0, 0), new Velocity(0, 50), new Speed(50),
+                    LoadTextureFromImage(playerImage), playerSource, new AnimationData(0.1, 0, false), HitboxFromRectangle(playerSource.CurrentRect));
         } else {
             // TODO: implement method to load specific saved levels from file
         }
