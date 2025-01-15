@@ -9,8 +9,10 @@ class Program
 {
     public static int RenderWidth = 640;
     public static int RenderHeight = 360;
-    public static bool ShowFPS = true;
-    public static bool ShowMousePosition = false;
+
+    public static bool Debug = false;
+    public static bool ShowFPS = Debug;
+    public static bool ShowMousePosition = Debug;
 
     public static RenderTexture2D target;
     public static float scale;

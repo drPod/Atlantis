@@ -8,7 +8,7 @@ namespace Atlantis;
 
 class MainLevel : Level,ILevel,IDisposable
 {
-    private bool drawHitboxes = true;
+    private bool drawHitboxes = Program.Debug;
     private Vector2 gravity = new Vector2(0, 5f);
     protected double gameTime;
 
@@ -70,7 +70,7 @@ class MainLevel : Level,ILevel,IDisposable
             pos.Y += vel.Dy * deltaTime;
         });
 
-        // Update gameTime
+        /* update gameTime */
         gameTime = GetTime();
     }
 

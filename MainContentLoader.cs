@@ -54,6 +54,7 @@ class MainContentLoader : IContentLoader
     public void LoadContentIntoWorld(World world)
     {
         if (filename == String.Empty) {
+            /* ui */
             /* for testing */
             Image playerImage = LoadImage("./assets/underwater-diving-files/PNG/player/player-swiming.png");
             Dictionary<String, Rectangle[]> playerSprites = new()
@@ -61,7 +62,11 @@ class MainContentLoader : IContentLoader
                 { "swiming", FromSpritesheet(playerImage, 7) }
             };
             SourceRects playerSource = new SourceRects(playerSprites, "swiming", 0);
-            world.Create(new Player(), new Gravity(), new Position(0, 0), new Velocity(0, 50), new Speed(50),
+            /* world.Create(new Player(), new Gravity(), new Position(0, 0), new Velocity(0, 50), new Speed(50), */
+            /*         LoadTextureFromImage(playerImage), playerSource, new AnimationData(0.1, 0, false), HitboxFromRectangle(playerSource.CurrentRect)); */
+
+            /* ui */
+            world.Create(new Player(), new Gravity(), new UIPos(0, 0), new Velocity(0, 50), new Speed(50),
                     LoadTextureFromImage(playerImage), playerSource, new AnimationData(0.1, 0, false), HitboxFromRectangle(playerSource.CurrentRect));
         } else {
             // TODO: implement method to load specific saved levels from file
