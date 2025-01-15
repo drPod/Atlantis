@@ -40,11 +40,27 @@ class MainLevel : Level,ILevel,IDisposable
             vel = new Velocity(movementVector.X, movementVector.Y);
 
             /* collision */
-            /* edit animation configuration */
-            // flip character based on movement direction
-            if (vel.Dx != 0 || vel.Dy != 0) // don't flip character when it is still
-                anim.isFlippedHorizontal = vel.Dx < 0;
         });
+
+        /* var queryForFish = new QueryDescription().WithAll<Fish, Velocity, Speed, AnimationData>(); */
+        /* world.Query(in queryForPlayer, (ref Velocity vel, ref Speed speed, ref AnimationData anim) => { */
+        /*     /1* player movement *1/ */
+        /*     Vector2 movementVector = Vector2.Zero; */
+        /*     if (IsKeyDown(KeyboardKey.W)) movementVector.Y -= 1; */
+        /*     if (IsKeyDown(KeyboardKey.A)) movementVector.X -= 1; */
+        /*     if (IsKeyDown(KeyboardKey.S)) movementVector.Y += 1; */
+        /*     if (IsKeyDown(KeyboardKey.D)) movementVector.X += 1; */
+
+        /*     if (movementVector != Vector2.Zero) // avoid normalizing a zeroed vector as it results in division by 0 */
+        /*         movementVector = Vector2.Normalize(movementVector) * speed.Dx; */
+        /*     vel = new Velocity(movementVector.X, movementVector.Y); */
+
+        /*     /1* collision *1/ */
+        /*     /1* edit animation configuration *1/ */
+        /*     // flip character based on movement direction */
+        /*     if (vel.Dx != 0 || vel.Dy != 0) // don't flip character when it is still */
+        /*         anim.isFlippedHorizontal = vel.Dx < 0; */
+        /* }); */
 
         /* animation */
         var queryForAnim = new QueryDescription().WithAll<SourceRects, AnimationData, Velocity>();
@@ -54,6 +70,9 @@ class MainLevel : Level,ILevel,IDisposable
                 source.frame = (source.frame + 1) % source.CurrentSet.Length;
                 anim.lastFrameTime = gameTime;
             }
+            // flip character based on movement direction
+            if (vel.Dx != 0 || vel.Dy != 0) // don't flip character when it is still
+                anim.isFlippedHorizontal = vel.Dx < 0;
         });
 
         /* gravity */

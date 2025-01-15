@@ -17,6 +17,11 @@ class Program
     public static RenderTexture2D target;
     public static float scale;
     public static Rectangle screenDestRect;
+    public enum GameState {
+        MENU,
+        RUNNING
+    };
+    public static GameState gameState = GameState.MENU;
 
     /* fullTextureSource:
      * Helper method to generate a sourceRectangle that includes the whole texture */
@@ -95,7 +100,10 @@ class Program
             Vector2 max = new((float)RenderWidth, (float)RenderHeight);
             virtualMouse = Vector2.Clamp(virtualMouse, Vector2.Zero, max);
 
-            level.UpdateLevel(virtualMouse);
+            if (gameState == GameState.MENU)
+                if (IsKeyPressed(KeyboardKey.Space)) gameState = GameState.RUNNING;
+            if (gameState == GameState.RUNNING)
+                level.UpdateLevel(virtualMouse);
 
             /* Draw */
             BeginDrawing();
@@ -103,10 +111,17 @@ class Program
             // in order to get consistent scaling on all resolutions
             // Draw here directly for things that are relative to the screen (ie HUD, menus)
             BeginTextureMode(target);
-            ClearBackground(Color.White);
+            ClearBackground(Color.Blue);
 
             // This call uses the level's camera
-            level.DrawLevel();
+            if (gameState == GameState.MENU) {
+                string gameName = "The Lost City Of Atlantis: The Kraken's Den";
+                DrawText(gameName, (RenderWidth - MeasureText(gameName, 20)) / 2, 30, 20, Color.DarkBlue);
+                string startmsg = "Press space to start";
+                DrawText(startmsg, (RenderWidth - MeasureText(startmsg, 30)) / 2, RenderHeight - 40, 30, Color.DarkBlue);
+            }
+            if (gameState == GameState.RUNNING)
+                level.DrawLevel();
 
             /* Debug Drawing */
             if (ShowFPS)

@@ -2,6 +2,7 @@ using Raylib_cs;
 using static Raylib_cs.Raylib;
 using Arch.Core;
 using Arch.Persistence;
+using System.Collections;
 
 namespace Atlantis;
 
@@ -51,11 +52,19 @@ class MainContentLoader : IContentLoader
         return rects;
     }
 
+    private SourceRects LoadFromSpritesheetFile(List<string> filenames, List<string> spritenames, int numSprites)
+    {
+        Dictionary<String, Rectangle[]> sprites = new();
+        for (int i = 0; i < filenames.Count; i++) {
+            Image image = LoadImage(filenames[i]);
+            sprites.Add(spritenames[i], FromSpritesheet(image, numSprites));
+        }
+        return new SourceRects(sprites, spritenames[0], 0);
+    }
+
     public void LoadContentIntoWorld(World world)
     {
         if (filename == String.Empty) {
-            /* ui */
-            /* for testing */
             Image playerImage = LoadImage("./assets/underwater-diving-files/PNG/player/player-swiming.png");
             Dictionary<String, Rectangle[]> playerSprites = new()
             {
@@ -66,8 +75,10 @@ class MainContentLoader : IContentLoader
             /*         LoadTextureFromImage(playerImage), playerSource, new AnimationData(0.1, 0, false), HitboxFromRectangle(playerSource.CurrentRect)); */
 
             /* ui */
-            world.Create(new Player(), new Gravity(), new UIPos(0, 0), new Velocity(0, 50), new Speed(50),
+            world.Create(new Player(), new Gravity(), new UIPos(0, 0), new Velocity(), new Speed(50),
                     LoadTextureFromImage(playerImage), playerSource, new AnimationData(0.1, 0, false), HitboxFromRectangle(playerSource.CurrentRect));
+            world.Create(new Fish(), new UIPos(30, 0), new Velocity(), new Speed(20),
+                    LoadTextureFromImage(), playerSource, new AnimationData(0.1, 0, false), HitboxFromRectangle(playerSource.CurrentRect));
         } else {
             // TODO: implement method to load specific saved levels from file
         }

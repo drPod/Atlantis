@@ -26,4 +26,5 @@ public record struct SourceRects(Dictionary<String,Rectangle[]> rects, String se
 }
 public record struct AnimationData(double delay, double lastFrameTime, bool isFlippedHorizontal); // Delay between animation frames in seconds
 public record struct Player(); // an empty component, used as a boolean value for whether the entity is a player
+public record struct Fish(); // an empty component, used as a boolean value for whether the entity is a Fish
 public record struct Gravity(); // enables gravity for this entity
